@@ -1,8 +1,9 @@
 import 'dart:io' show Platform;
 
-import 'package:bitcoin_ticker/coin_data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import 'coin_data.dart';
 
 class PriceScreen extends StatefulWidget {
   @override
@@ -39,9 +40,7 @@ class _PriceScreenState extends State<PriceScreen> {
       pickerItems.add(
         Text(
           currency,
-          style: TextStyle(
-            color: Colors.white,
-          ),
+          style: TextStyle(color: Colors.white),
         ),
       );
     }
@@ -49,18 +48,39 @@ class _PriceScreenState extends State<PriceScreen> {
     return CupertinoPicker(
       backgroundColor: Colors.lightBlue,
       itemExtent: 32.0,
-      onSelectedItemChanged: (selectedIndex) {},
+      onSelectedItemChanged: (selectedIndex) {
+        setState(() {
+          selectedCurrency = pickerItems[selectedIndex].data;
+        });
+      },
       children: pickerItems,
     );
+  }
+
+  String BTC2USD = '?';
+
+  void getData() async {
+    try {
+      double exchangeRate = await CoinData().getCoinData();
+      setState(() {
+        BTC2USD = exchangeRate.toStringAsFixed(0);
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getData();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          '🤑 Coin Ticker',
-        ),
+        title: Text('🤑 Coin Ticker'),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -77,7 +97,7 @@ class _PriceScreenState extends State<PriceScreen> {
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
                 child: Text(
-                  '1 BTC = ? USD',
+                  '1 BTC = $BTC2USD USD',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 20.0,
