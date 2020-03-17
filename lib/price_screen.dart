@@ -11,7 +11,7 @@ class PriceScreen extends StatefulWidget {
 }
 
 class _PriceScreenState extends State<PriceScreen> {
-  String selectedCurrency = 'USD';
+  String selectedCurrency = 'AUD';
 
   DropdownButton<String> androidDropdown() {
     List<DropdownMenuItem<String>> dropdownItems = [];
@@ -29,6 +29,7 @@ class _PriceScreenState extends State<PriceScreen> {
       onChanged: (value) {
         setState(() {
           selectedCurrency = value;
+          getData();
         });
       },
     );
@@ -51,6 +52,7 @@ class _PriceScreenState extends State<PriceScreen> {
       onSelectedItemChanged: (selectedIndex) {
         setState(() {
           selectedCurrency = pickerItems[selectedIndex].data;
+          getData();
         });
       },
       children: pickerItems,
@@ -61,7 +63,7 @@ class _PriceScreenState extends State<PriceScreen> {
 
   void getData() async {
     try {
-      double exchangeRate = await CoinData().getCoinData();
+      double exchangeRate = await CoinData().getCoinData(selectedCurrency);
       setState(() {
         BTC2USD = exchangeRate.toStringAsFixed(0);
       });
@@ -97,7 +99,7 @@ class _PriceScreenState extends State<PriceScreen> {
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
                 child: Text(
-                  '1 BTC = $BTC2USD USD',
+                  '1 BTC = $BTC2USD $selectedCurrency',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 20.0,
