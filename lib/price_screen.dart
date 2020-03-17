@@ -1,5 +1,6 @@
 import 'dart:io' show Platform;
 
+import 'package:bitcoin_ticker/crypto_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -59,13 +60,16 @@ class _PriceScreenState extends State<PriceScreen> {
     );
   }
 
-  String BTC2USD = '?';
+  Map<String, String> exchangeRates = {};
+  bool isWaiting = false;
 
   void getData() async {
+    isWaiting = true;
     try {
-      double exchangeRate = await CoinData().getCoinData(selectedCurrency);
+      var data = await CoinData().getCoinData(selectedCurrency);
+      isWaiting = false;
       setState(() {
-        BTC2USD = exchangeRate.toStringAsFixed(0);
+        exchangeRates = data;
       });
     } catch (e) {
       print(e);
@@ -78,37 +82,34 @@ class _PriceScreenState extends State<PriceScreen> {
     getData();
   }
 
+  Column createCards() {
+    List<CryptoCard> cryptoCards = [];
+    for (String crypto in cryptoList) {
+      cryptoCards.add(
+        CryptoCard(
+          exchangeRate: isWaiting ? '?' : exchangeRates[crypto],
+          currency: selectedCurrency,
+          cryptoCurrency: crypto,
+        ),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: cryptoCards,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('🤑 Coin Ticker'),
+        title: Text('Crypto Ticker'),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Padding(
-            padding: EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
-            child: Card(
-              color: Colors.lightBlueAccent,
-              elevation: 5.0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
-                child: Text(
-                  '1 BTC = $BTC2USD $selectedCurrency',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ),
+          createCards(),
           Container(
             height: 150.0,
             alignment: Alignment.center,
