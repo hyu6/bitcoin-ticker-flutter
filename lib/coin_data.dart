@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:bitcoin_ticker/secrets.dart';
 import 'package:http/http.dart' as http;
 
 const List<String> currenciesList = [
@@ -33,7 +34,7 @@ const List<String> cryptoList = [
 ];
 
 const coinAPIURL = 'https://rest.coinapi.io/v1/exchangerate';
-const apiKey = '588B5812-0A93-4E91-837B-8481D91A976D';
+const apiKey = kApiKey;
 
 class CoinData {
   Future getCoinData(String currency) async {
